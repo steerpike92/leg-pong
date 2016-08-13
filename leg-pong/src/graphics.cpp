@@ -12,8 +12,8 @@ Graphics::Graphics()
 		exit(EXIT_FAILURE);
 	}
 	
-	bool TTF_init_failure = TTF_Init();
-	if (TTF_init_failure) {
+	auto TTF_init_success = TTF_Init();
+	if (TTF_init_success == -1) {
 		std::cerr << "Error, TTF failed to initialize" << std::endl;;
 		exit(EXIT_FAILURE);
 	}
@@ -34,9 +34,10 @@ Graphics::~Graphics()
 void Graphics::flip() 
 {
 	SDL_RenderPresent(renderer_);
+	clear();
 }
 
-bool Graphics::load_image(const std::string& path_name)
+void Graphics::load_image(const std::string& path_name)
 {
 	//Check if image already loaded
 	if (textures_.count(path_name) == 0) {
@@ -55,7 +56,7 @@ bool Graphics::load_image(const std::string& path_name)
 void Graphics::set_background(const std::string& path_name)
 {
 	load_image(path_name);
-	background_path = path_name;
+	background_path_ = path_name;
 }
 
 
@@ -84,6 +85,10 @@ void Graphics::clear()
 {
 	SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 1);
 	SDL_RenderClear(renderer_);
+	
+	if (!background_path_.empty()) {
+		render_image(background_path_, nullptr, nullptr);
+	}
 
 }
 

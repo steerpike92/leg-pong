@@ -20,7 +20,7 @@ private:
 	void initialize();
 	void loop();
 
-	void update();
+	void update(Uint32 elapsed_time);
 	void draw();
 
 
