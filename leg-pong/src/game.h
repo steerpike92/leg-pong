@@ -2,7 +2,8 @@
 
 #include "graphics.h"
 #include "input.h"
-#include "sprite.h"
+#include "leg.h"
+#include "ball.h"
 
 namespace pong {
 
@@ -15,7 +16,13 @@ public:
 private:
 	Graphics graphics_;
 	Input input_;
-	Sprite player_;
+
+	Player player_;
+	Opponent opponent_;
+	Ball ball_;
+
+	int score_{ 0 };
+
 
 	void initialize();
 	void loop();

@@ -1,8 +1,10 @@
 #pragma once
 
 #include <SDL.h>
-
+#include <Eigen\dense>
+#include <cmath>
 #include <string>
+
 
 namespace pong {
 
@@ -13,18 +15,21 @@ class Sprite
 {
 public:
 	Sprite();
-	Sprite(Graphics& graphics, const std::string& file_path, SDL_Rect source_rect, SDL_Point position);
+	Sprite(Graphics& graphics, const std::string& file_path, SDL_Rect source_rect, const Eigen::Vector2d &position);
 	~Sprite();
 	
-	void update(Input& input, Uint32 elapsed_time);
+	virtual void update(Uint32 elapsed_time);
 	void draw(Graphics& graphics);
 
-private:
+protected:
 
 	std::string file_path_;
 	SDL_Rect source_rectangle_;
-	SDL_Point position_;
-	
+
+	Eigen::Vector2d position_;
+	double angle_rad_=0;
+
+private:
 
 };
 

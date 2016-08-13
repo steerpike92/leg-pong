@@ -12,10 +12,11 @@ Sprite::Sprite()
 
 
 
-Sprite::Sprite(Graphics& graphics, const std::string& file_path, SDL_Rect source_rectangle, SDL_Point position) :
+Sprite::Sprite(Graphics& graphics, const std::string& file_path, SDL_Rect source_rectangle, const Eigen::Vector2d &position) :
 	file_path_(file_path),
 	source_rectangle_(source_rectangle),
-	position_(position)
+	position_(position),
+	angle_rad_(0)
 {
 	graphics.load_image(file_path_);
 }
@@ -28,20 +29,22 @@ Sprite::~Sprite()
 
 
 
-void Sprite::update(Input &input, Uint32 elapsed_time)
+void Sprite::update(Uint32 elapsed_time)
 {
-	if (input.is_key_held(SDL_SCANCODE_LEFT))
-		position_.x -= elapsed_time / 4;
-	if (input.is_key_held(SDL_SCANCODE_RIGHT))
-		position_.x += elapsed_time / 4;
+	
 }
 
 
 
 void Sprite::draw(Graphics & graphics)
 {
-	SDL_Rect destination_rectangle{ position_.x, position_.y, source_rectangle_.w, source_rectangle_.h };
-	graphics.render_image(file_path_, &source_rectangle_, &destination_rectangle);
+	SDL_Rect destination_rectangle{ 
+		static_cast<int>(position_[0]), 
+		static_cast<int>(position_[1]),
+		source_rectangle_.w, 
+		source_rectangle_.h };
+
+	graphics.render_image(file_path_, &source_rectangle_, &destination_rectangle, angle_rad_);
 }
 
 

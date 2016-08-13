@@ -1,9 +1,11 @@
 #include "game.h"
 
 #include <SDL.h>
+#include <Eigen/dense>
 
 #include <string>
 #include <iostream>
+
 
 namespace pong {
 
@@ -26,13 +28,10 @@ Game::~Game()
 
 
 void Game::initialize()
-{
-
-	SDL_Rect source_rectangle{ 0,0,200,50 };
-	SDL_Point start_position{ 300,350 };
-	std::string path = "data/human-leg.png";
-
-	player_ = Sprite(graphics_, path, source_rectangle, start_position);
+{	
+	player_ = Player(graphics_);
+	opponent_ = Opponent(graphics_);
+	ball_ = Ball(graphics_);
 
 	graphics_.set_background("data/background4.png");
 
@@ -79,7 +78,10 @@ void Game::loop()
 
 void Game::update(Uint32 elapsed_time)
 {
-	player_.update(input_, elapsed_time);
+	player_.process_input(input_, elapsed_time);
+	player_.update(elapsed_time);
+	opponent_.update(elapsed_time);
+	ball_.update(elapsed_time);
 }
 
 
@@ -87,6 +89,8 @@ void Game::update(Uint32 elapsed_time)
 void Game::draw()
 {
 	player_.draw(graphics_);
+	opponent_.draw(graphics_);
+	ball_.draw(graphics_);
 
 	graphics_.flip();
 }
