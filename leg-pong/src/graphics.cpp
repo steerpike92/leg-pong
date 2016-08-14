@@ -1,4 +1,5 @@
 #include "graphics.h"
+#include "globals.h"
 
 #include <iostream>
 
@@ -18,7 +19,7 @@ Graphics::Graphics()
 		exit(EXIT_FAILURE);
 	}
 
-	window_ = SDL_CreateWindow("Leg Pong", 50, 50, 800, 600, 0);
+	window_ = SDL_CreateWindow("Leg Pong", 50, 50, screen_width(), screen_height(), 0);
 	renderer_ = SDL_CreateRenderer(window_, 0, 0);
 }
 

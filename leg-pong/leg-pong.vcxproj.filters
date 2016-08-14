@@ -56,5 +56,8 @@
     <ClInclude Include="src\ball.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\globals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

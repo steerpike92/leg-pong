@@ -36,7 +36,7 @@ private:
 	void process_button_down_event(const SDL_Event& event);
 	void process_button_up_event(const SDL_Event& event);
 	void process_mouse_movement_event(const SDL_Event& event);
-	void process_mouse_position(const SDL_Event& event);
+	void process_mouse_center_position(const SDL_Event& event);
 
 	//array of key states
 	std::array<bool, SDL_NUM_SCANCODES> pressed_keys_{};

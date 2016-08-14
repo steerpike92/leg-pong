@@ -91,7 +91,7 @@ void Input::process_key_up_event(const SDL_Event &event)  {
 
 
 
-void Input::process_mouse_position(const SDL_Event &event) 
+void Input::process_mouse_center_position(const SDL_Event &event) 
 {
 	mouse_point_.x = event.button.x;
 	mouse_point_.y = event.button.y;
@@ -106,8 +106,8 @@ void Input::process_button_down_event(const SDL_Event& event)  {
 
 	held_buttons_[event.button.button] = true;
 
-	//store position data
-	process_mouse_position(event);
+	//store center_position data
+	process_mouse_center_position(event);
 
 }
 
@@ -117,13 +117,13 @@ void Input::process_button_up_event(const SDL_Event& event)  {
 	released_buttons_[event.button.button] = true;
 	held_buttons_[event.button.button] = false;
 
-	process_mouse_position(event);
+	process_mouse_center_position(event);
 }
 
 
 
 void Input::process_mouse_movement_event(const SDL_Event& event)  {
-	process_mouse_position(event);
+	process_mouse_center_position(event);
 }
 
 

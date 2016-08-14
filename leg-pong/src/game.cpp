@@ -43,8 +43,11 @@ void Game::loop()
 {
 	//Time variable initialization
 	auto last_update_time = SDL_GetTicks();
-	unsigned int minimum_frame_time{ 20u };
+	unsigned int minimum_frame_time{ 10u };
 
+
+	//GAME LOOP
+	//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 	while (true) {
 
 		input_.process_events();
@@ -52,25 +55,28 @@ void Game::loop()
 		if (input_.quit_flag_ || input_.is_key_pressed(SDL_SCANCODE_ESCAPE))
 			return;
 
+		if (game_state_ == GAME_RESET) {
+			if (input_.is_key_pressed(SDL_SCANCODE_SPACE)){
+				game_state_ = GAME_RUNNING;
+				ball_.start();
+			}
+		}
 
 		//Time handling
 		auto elapsed_time = SDL_GetTicks() - last_update_time;
-
 		//Framerate delay
 		if (elapsed_time < minimum_frame_time) {
 			auto delay = minimum_frame_time - elapsed_time;
 			SDL_Delay(delay);
 			elapsed_time = minimum_frame_time;
 		}
-
 		last_update_time = SDL_GetTicks();
-
 
 		update(elapsed_time);
 
 		draw();
-
 	}
+	//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 }
 
@@ -82,6 +88,27 @@ void Game::update(Uint32 elapsed_time)
 	player_.update(elapsed_time);
 	opponent_.update(elapsed_time);
 	ball_.update(elapsed_time);
+
+	BallState ball_state=ball_.collision_dectection(&opponent_, &player_);
+
+	switch (ball_state) {
+	case(BALL_NONE): 
+		break;
+	case(BALL_WALL_COLLISION):
+		break;
+	case(BALL_LEG_COLLISION): 
+		break;
+	case(BALL_PLAYER_SCORE): 
+		score_++;
+		ball_.reset();
+		game_state_ = GAME_RESET;
+		break;
+	case(BALL_OPPONENT_SCORE): 
+		score_--;
+		ball_.reset();
+		game_state_ = GAME_RESET;
+		break;
+	}
 }
 
 

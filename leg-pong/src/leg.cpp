@@ -6,65 +6,80 @@
 
 namespace pong {
 
-Leg::Leg()
-{
-}
+Leg::Leg(){}
+Leg::~Leg(){}
 
-Leg::Leg(Graphics& graphics, const Eigen::Vector2d& start_position):
-	Sprite(graphics, static_cast<std::string>("data/human-leg.png"), { 0,0,200,50 }, start_position )
-{
 
-}
 
-Leg::~Leg()
+Leg::Leg(Graphics& graphics, const Eigen::Vector2d& start_center_position):
+	Sprite(graphics, static_cast<std::string>("data/human-leg.png"), { 0,0,200,50 }, start_center_position, 5 )
 {
 }
 
 
 
-Player::Player()
+void Leg::update(Uint32 elapsed_time)
 {
+	Sprite::update(elapsed_time);
 }
+
+
+
+
+
+
+Player::Player(){}
+Player::~Player() {}
+
+
 
 Player::Player(Graphics& graphics) :
-	Leg(graphics, { 300.0,475.0 })
+	Leg(graphics, { 400.0,500.0 })
 {
 }
 
 
-
-Player::~Player()
-{
-}
 
 void Player::process_input(const Input & input, Uint32 elapsed_time)
 {
 	if (input.is_key_held(SDL_SCANCODE_LEFT))
-		position_[0] -= elapsed_time / 4.0;
+		velocity_[0] -= 500 * elapsed_time/1000.0;
 	if (input.is_key_held(SDL_SCANCODE_RIGHT))
-		position_[0] += elapsed_time / 4.0;
+		velocity_[0] += 500 * elapsed_time / 1000.0;
 
 	if (input.is_key_held(SDL_SCANCODE_A))
-		angle_rad_ -= elapsed_time / 10.0;
+		angular_velocity_ -= 120 * elapsed_time / 1000.0;
 	if (input.is_key_held(SDL_SCANCODE_D))
-		angle_rad_ += elapsed_time / 10.0;
+		angular_velocity_ += 120 * elapsed_time / 1000.0;
 }
 
 
 
-
-Opponent::Opponent()
+void Player::update(Uint32 elapsed_time)
 {
+	Leg::update(elapsed_time);
 }
+
+
+
+
+
+Opponent::Opponent(){}
+Opponent::~Opponent(){}
+
+
 
 Opponent::Opponent(Graphics& graphics) : 
-	Leg(graphics, { 300.0, 125.0 })
+	Leg(graphics, { 400.0, 100.0 })
 {
-
+	angle_deg_ = 180;
 }
 
-Opponent::~Opponent()
+
+
+void Opponent::update(Uint32 elapsed_time)
 {
+	Leg::update(elapsed_time);
 }
 
 

@@ -7,6 +7,16 @@
 
 namespace pong {
 
+
+
+enum GameState {
+	GAME_RESET,
+	GAME_PAUSED,
+	GAME_RUNNING
+};
+
+
+
 class Game
 {
 public:
@@ -22,7 +32,7 @@ private:
 	Ball ball_;
 
 	int score_{ 0 };
-
+	GameState game_state_ = GAME_RESET;
 
 	void initialize();
 	void loop();

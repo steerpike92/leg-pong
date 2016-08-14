@@ -21,7 +21,7 @@ public:
 	void load_image(const std::string& path_name);
 	void set_background(const std::string& path_name);
 
-	void render_image(const std::string &pathName, const SDL_Rect* const source_rectangle, const SDL_Rect * const destination_rectangle,
+	void render_image(const std::string& path_name, const SDL_Rect* const source_rectangle, const SDL_Rect* const destination_rectangle,
 		double degreesRotated=0.0, bool mirrorH=false, bool mirrorV=false);
 private:
 	SDL_Window *window_;
