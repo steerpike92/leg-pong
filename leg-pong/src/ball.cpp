@@ -126,13 +126,9 @@ void Ball::rotational_transform(Leg * leg)
 	Eigen::Vector3d rot_transform3 = omega_leg.cross(r_ball3);
 	Eigen::Vector2d rot_transform2{ rot_transform3[0], rot_transform3[1] };
 
-	//std::cout << "Old Speed: " << velocity_.norm() << std::endl;
-
 	//forward transform
 	leg->angular_velocity_rad_ -= w_leg;
 	velocity_ -= rot_transform2;
-
-	//std::cout << "New Speed: " << velocity_.norm() << std::endl;
 
 	//next stage of calculation
 	collision_calculations(leg);
@@ -161,25 +157,18 @@ void Ball::collision_calculations(Leg *leg)
 
 
 	double Vin = vector_velocity_in.norm();
-	std::cout << "Vin =" << Vin << std::endl;
 
 	double alpha = mass_/ leg->mass_;
 	double beta = pow(r_ball3.norm()*sin_theta, 2)/(pow(leg->get_length(),2)/12.0);
 	double phi = alpha*(1 + beta);
 
 	double a = 1 + phi;
-	//std::cout << "a=" << a << std::endl;
-	//double b = -2 * Vin*(1 + phi);
-	double b = 0;
-	//std::cout << "b=" << b << std::endl;
+	double b = -2 * Vin*(phi);
 	double c = Vin*Vin*(phi - 1);
-	//std::cout << "c=" << c << std::endl;
 	double Vout = quadratic_neg(a, b, c);
-	std::cout << "Vout=" << Vout << std::endl;
 
 
 	double delta_v = Vout - Vin;
-	std::cout << "delta_v=" << delta_v << std::endl;
 
 	Eigen::Vector3d delta_vector_velocity = vector_velocity_in.normalized() * delta_v;
 	
@@ -196,14 +185,8 @@ void Ball::collision_calculations(Leg *leg)
 
 	//transfer vertical energy back to ball
 	double e_vert = pow(v_leg3[1],2)*leg->mass_;
-	
-	std::cout << "Vout=" << velocity_.norm() << std::endl;
-
 	double sign = (velocity_[1] > 0) ? 1 : -1;
 	velocity_[1] = sign*pow(pow(velocity_[1], 2) + e_vert / mass_, 0.5);
-
-	std::cout << "Vout=" << velocity_.norm() << std::endl;
-
 
 	//save leg spin
 	leg->angular_velocity_rad_ = delta_vector_velocity.cross(r_ball3)[2]*mass_/ (leg->mass_*pow(leg->get_length(), 2) / 12.0  );

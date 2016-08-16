@@ -12,7 +12,7 @@ Leg::~Leg(){}
 
 
 Leg::Leg(Graphics& graphics, const Eigen::Vector2d& start_center_position):
-	Sprite(graphics, static_cast<std::string>("data/human-leg.png"), { 0,0,200,50 }, start_center_position, 10 )
+	Sprite(graphics, static_cast<std::string>("data/human-leg.png"), { 0,0,200,50 }, start_center_position, 4 )
 {
 }
 
@@ -86,6 +86,9 @@ Opponent::Opponent(Graphics& graphics) :
 
 void Opponent::update(Uint32 elapsed_time)
 {
+
+
+
 	Leg::update(elapsed_time);
 }
 
