@@ -105,12 +105,12 @@ void Game::update(Uint32 elapsed_time)
 		break;
 	case(BALL_PLAYER_SCORE): 
 		score_++;
-		ball_.reset();
+		reset();
 		game_state_ = GAME_RESET;
 		break;
 	case(BALL_OPPONENT_SCORE): 
 		score_--;
-		ball_.reset();
+		reset();
 		game_state_ = GAME_RESET;
 		break;
 	}
@@ -126,6 +126,8 @@ void Game::draw()
 
 	graphics_.flip();
 }
+
+
 
 void Game::reset()
 {

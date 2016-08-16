@@ -71,8 +71,8 @@ BallState Ball::collision_dectection(Opponent* opponent_leg, Player* player_leg)
 
 bool Ball::leg_collision_detection(Leg* leg)
 {
-	double opponent_radial_distance = (center_position_ - leg->center_position_).norm();
-	if (opponent_radial_distance < leg->k_check_radius) {
+	double radial_distance = (center_position_ - leg->center_position_).norm();
+	if (radial_distance-radius_ < leg->k_check_radius) {
 		
 		//for interpolation
 		//Eigen::Vector2d r1 = previous_center_position_ - leg->center_position_;
