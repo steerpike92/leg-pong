@@ -35,19 +35,13 @@ void Game::initialize()
 
 	graphics_.set_background("data/background4.png");
 
+	last_update_time_ = SDL_GetTicks();
 }
 
 
 
 void Game::loop()
 {
-	//Time variable initialization
-	auto last_update_time = SDL_GetTicks();
-	unsigned int minimum_frame_time{ 10u };
-
-
-	//GAME LOOP
-	//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 	while (true) {
 
 		input_.process_events();
@@ -62,22 +56,33 @@ void Game::loop()
 			}
 		}
 
-		//Time handling
-		auto elapsed_time = SDL_GetTicks() - last_update_time;
-		//Framerate delay
-		if (elapsed_time < minimum_frame_time) {
-			auto delay = minimum_frame_time - elapsed_time;
-			SDL_Delay(delay);
-			elapsed_time = minimum_frame_time;
+		if (input_.is_key_pressed(SDL_SCANCODE_R)) {
+			reset();
 		}
-		last_update_time = SDL_GetTicks();
 
+
+
+		//Time handling and Framerate delay
+		unsigned elapsed_time = delay_timer();
+		
 		update(elapsed_time);
 
 		draw();
 	}
-	//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+}
 
+
+
+unsigned Game::delay_timer()
+{
+	unsigned elapsed_time = SDL_GetTicks() - last_update_time_;
+	if (elapsed_time < k_minimum_frame_time_) {
+		auto delay = k_minimum_frame_time_ - elapsed_time;
+		SDL_Delay(delay);
+		elapsed_time = k_minimum_frame_time_;
+	}
+	last_update_time_ = SDL_GetTicks();
+	return elapsed_time;
 }
 
 
@@ -120,6 +125,14 @@ void Game::draw()
 	ball_.draw(graphics_);
 
 	graphics_.flip();
+}
+
+void Game::reset()
+{
+	ball_.reset();
+	player_.reset();
+	opponent_.reset();
+	game_state_ = GAME_RESET;
 }
 
 

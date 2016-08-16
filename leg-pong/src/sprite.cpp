@@ -2,6 +2,7 @@
 
 #include "graphics.h"
 #include "input.h"
+#include "globals.h"
 
 namespace pong {
 
@@ -30,7 +31,7 @@ void Sprite::update(Uint32 elapsed_time)
 	center_position_ += velocity_* elapsed_time / 1000.0;
 
 	previous_angle_deg_ = angle_deg_;
-	angle_deg_ += angular_velocity_ * elapsed_time / 1000.0;
+	angle_deg_ += (to_degrees(angular_velocity_rad_)) * elapsed_time / 1000.0;
 }
 
 

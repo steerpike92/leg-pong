@@ -39,8 +39,15 @@ public:
 private:
 	double radius_ = 25.0;
 
+	static constexpr int k_refactory_frames = 10;
+	int player_refractory = 0;
+	int opponent_refractory = 0;
+
 	bool leg_collision_detection(Leg* leg);
 	void handle_leg_collision(Leg* leg);
+	void linear_transform(Leg* leg);
+	void rotational_transform(Leg* leg);
+	void collision_calculations(Leg* leg);
 };
 
 

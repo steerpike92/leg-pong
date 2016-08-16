@@ -26,7 +26,7 @@ protected:
 	Eigen::Vector2d velocity_{ 0,0 };
 
 	double angle_deg_{ 0 }, previous_angle_deg_{ 0 };
-	double angular_velocity_{ 0 };
+	double angular_velocity_rad_{ 0 };
 	double mass_{ 0 };
 private:
 	std::string file_path_;

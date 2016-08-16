@@ -33,13 +33,18 @@ private:
 
 	int score_{ 0 };
 	GameState game_state_ = GAME_RESET;
+	
+	Uint32 last_update_time_;
+	const unsigned k_minimum_frame_time_{ 5u };
 
 	void initialize();
 	void loop();
 
+	unsigned delay_timer();
 	void update(Uint32 elapsed_time);
 	void draw();
 
+	void reset();
 
 };
 
