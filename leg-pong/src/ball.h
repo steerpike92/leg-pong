@@ -21,6 +21,13 @@ enum BallState {
 	BALL_OPPONENT_SCORE
 };
 
+enum CollisionType {
+	COLLISION_NONE,
+	COLLISION_STANDARD,
+	COLLISION_FOOT,
+	COLLISION_STUB
+};
+
 
 class Ball : public Sprite
 {
@@ -34,20 +41,19 @@ public:
 	void reset();
 	void start();
 
-
-
 private:
 	double radius_ = 25.0;
 
 	static constexpr int k_refactory_frames = 10;
 	int player_refractory = 0;
 	int opponent_refractory = 0;
-
-	bool leg_collision_detection(Leg* leg);
-	void handle_leg_collision(Leg* leg);
-	void linear_transform(Leg* leg);
-	void rotational_transform(Leg* leg);
-	void collision_calculations(Leg* leg);
+	
+	CollisionType leg_collision_detection(Leg* leg);
+	void handle_leg_collision(Leg* leg, CollisionType collision_type);
+	void linear_transform(Leg* leg, Eigen::Vector3d& frame_velocity);
+	void rotational_transform(Leg* leg, double frame_omega);
+	Eigen::Vector3d get_collision_normal(Leg* leg, CollisionType collision_type);
+	void collision_calculations(Leg* leg, CollisionType collision_type);
 };
 
 

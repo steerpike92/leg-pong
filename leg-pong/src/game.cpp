@@ -89,10 +89,15 @@ unsigned Game::delay_timer()
 
 void Game::update(Uint32 elapsed_time)
 {
+
 	player_.process_input(input_, elapsed_time);
 	player_.update(elapsed_time);
+
+	opponent_.AI(ball_, elapsed_time);
 	opponent_.update(elapsed_time);
 	ball_.update(elapsed_time);
+
+
 
 	BallState ball_state=ball_.collision_dectection(&opponent_, &player_);
 

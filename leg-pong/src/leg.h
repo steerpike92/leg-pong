@@ -16,43 +16,28 @@ class Leg : public Sprite
 	friend class Ball;
 public:
 	Leg();
-	Leg(Graphics& graphics, const Eigen::Vector2d& start_center_position);
+	Leg(Graphics& graphics, const Eigen::Vector3d& start_center_position);
 	~Leg();
 
 	virtual void update(Uint32 elapsed_time);
 
+protected:
+	void push_left(Uint32 elapsed_time);
+	void push_right(Uint32 elapsed_time);
+	void torque_up(Uint32 elapsed_time);
+	void torque_down(Uint32 elapsed_time);
 private:
-	static constexpr double k_check_radius =100.0;
-	static constexpr double k_distance_from_axis= 25.0;
+	static constexpr double k_check_radius{ 90.0 };
+	static constexpr double k_distance_from_axis{ 17.0 };
 
+	Eigen::Vector3d get_normal() const;
+	double get_distance_to_leg_line(const Eigen::Vector3d& other_center) const;
 
-	inline Eigen::Vector2d get_normal_2d() const 
-	{
-		return Eigen::Vector2d{ sin(to_radians(angle_deg_)) , -cos(to_radians(angle_deg_)) };
-	}
+	inline double get_length() const  {return 200.0;}
 
-	inline Eigen::Vector3d get_normal_3d() const 
-	{
-		return Eigen::Vector3d{ sin(to_radians(angle_deg_)) , -cos(to_radians(angle_deg_)), 0 };
-	}
-
-	inline Eigen::Vector3d get_omega_vector() const 
-	{
-		return Eigen::Vector3d{ 0, 0, angular_velocity_rad_ };
-	}
-
-	inline double get_distance_to_leg(const Eigen::Vector2d& other_center) const 
-	{
-		Eigen::Vector2d r = other_center - center_position_;
-		double distance = abs(r.dot(get_normal_2d())); //distance from center to leg line;
-		return distance;
-	}
-
-	inline double get_length() const 
-	{
-		return 200.0;
-	}
-
+	
+	Eigen::Vector3d get_foot_position() const;
+	Eigen::Vector3d get_stub_position() const;
 
 };
 
@@ -82,6 +67,7 @@ public:
 	Opponent(Graphics& graphics);
 	~Opponent();
 
+	void AI(const Ball& ball, Uint32 elapsed_time);
 	void update(Uint32 elapsed_time);
 	void reset();
 private:
