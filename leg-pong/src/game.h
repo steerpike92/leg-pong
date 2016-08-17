@@ -2,8 +2,10 @@
 
 #include "graphics.h"
 #include "input.h"
+#include "audio.h"
 #include "leg.h"
 #include "ball.h"
+
 
 namespace pong {
 
@@ -26,6 +28,7 @@ public:
 private:
 	Graphics graphics_;
 	Input input_;
+	Audio audio_;
 
 	Player player_;
 	Opponent opponent_;
@@ -36,6 +39,7 @@ private:
 	
 	Uint32 last_update_time_;
 	const unsigned k_minimum_frame_time_{ 5u };
+	const unsigned k_maximum_frame_time_{ 50u };
 
 	void initialize();
 	void loop();

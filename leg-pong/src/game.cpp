@@ -36,6 +36,9 @@ void Game::initialize()
 	graphics_.set_background("data/background4.png");
 
 	last_update_time_ = SDL_GetTicks();
+
+	//audio_.playMusic();
+
 }
 
 
@@ -82,6 +85,9 @@ unsigned Game::delay_timer()
 		elapsed_time = k_minimum_frame_time_;
 	}
 	last_update_time_ = SDL_GetTicks();
+
+	elapsed_time = std::min(k_maximum_frame_time_, elapsed_time);
+
 	return elapsed_time;
 }
 
@@ -105,18 +111,22 @@ void Game::update(Uint32 elapsed_time)
 	case(BALL_NONE): 
 		break;
 	case(BALL_WALL_COLLISION):
+		audio_.playSound(SOUND_BA);
 		break;
 	case(BALL_LEG_COLLISION): 
+		audio_.playSound(SOUND_SPIT);
 		break;
 	case(BALL_PLAYER_SCORE): 
 		score_++;
 		reset();
 		game_state_ = GAME_RESET;
+		audio_.playSound(SOUND_BA);
 		break;
 	case(BALL_OPPONENT_SCORE): 
 		score_--;
 		reset();
 		game_state_ = GAME_RESET;
+		audio_.playSound(SOUND_BA);
 		break;
 	}
 }

@@ -15,7 +15,7 @@ class Sprite
 {
 public:
 	Sprite();
-	Sprite(Graphics& graphics, const std::string& file_path, SDL_Rect source_rect, const Eigen::Vector3d &center_position, double mass);
+	Sprite(Graphics& graphics, const std::string& file_path, SDL_Rect source_rect, const Eigen::Vector3d &center_position, double angle_rad, double mass);
 	~Sprite();
 	
 	virtual void update(Uint32 elapsed_time);
@@ -36,7 +36,7 @@ protected:
 	Eigen::Vector3d center_position_, previous_center_position_;
 	Eigen::Vector3d velocity_{ 0,0,0 };
 
-	double angle_deg_{ 0 }, previous_angle_deg_{ 0 };
+	double angle_rad_{ 0 }, previous_angle_rad_{ 0 };
 	double angular_velocity_rad_{ 0 };
 	double mass_{ 0 };
 private:

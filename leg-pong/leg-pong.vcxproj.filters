@@ -36,6 +36,9 @@
     <ClCompile Include="src\ball.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\audio.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game.h">
@@ -59,5 +62,11 @@
     <ClInclude Include="src\globals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\audio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="notes\AInotes.txt" />
   </ItemGroup>
 </Project>

@@ -14,7 +14,7 @@ Ball::~Ball(){}
 
 
 Ball::Ball(Graphics& graphics) :
-	Sprite(graphics, static_cast<std::string>("data/ball.png"), { 0,0,50,50 }, { 400.0,300.0,0 },1)
+	Sprite(graphics, static_cast<std::string>("data/ball.png"), { 0,0,50,50 }, { 400.0,300.0,0 },0, 1)
 {
 }
 
