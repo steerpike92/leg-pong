@@ -74,11 +74,14 @@ public:
 	Opponent(Graphics& graphics);
 	~Opponent();
 
-	void AI(const Ball& ball, Uint32 elapsed_time);
+	
 	void update(Uint32 elapsed_time);
 	void reset();
-private:
+	void AI(const Ball& ball, Uint32 elapsed_time);
 
+private:
+	void angular_AI(const Ball& ball, Uint32 elapsed_time);
+	void lateral_AI(const Ball& ball, Uint32 elapsed_time);
 };
 
 
