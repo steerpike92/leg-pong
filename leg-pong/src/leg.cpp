@@ -92,6 +92,7 @@ void Player::update(Uint32 elapsed_time)
 }
 
 
+
 void Player::reset()
 {
 	velocity_ = { 0,0,0 };
@@ -100,6 +101,7 @@ void Player::reset()
 	angular_velocity_rad_ = 0;
 
 }
+
 
 
 Opponent::Opponent(){}
@@ -111,6 +113,7 @@ Opponent::Opponent(Graphics& graphics) :
 	Leg(graphics, { 350.0, 100.0, 0 }, M_PI )
 {
 }
+
 
 
 void Opponent::AI(const Ball& ball, Uint32 elapsed_time)
@@ -145,6 +148,8 @@ void Opponent::AI(const Ball& ball, Uint32 elapsed_time)
 	
 
 }
+
+
 
 void Opponent::angular_AI(const Ball & ball, Uint32 elapsed_time)
 {
@@ -204,25 +209,27 @@ void Opponent::angular_AI(const Ball & ball, Uint32 elapsed_time)
 	}
 }
 
+
+
 void Opponent::lateral_AI(const Ball & ball, Uint32 elapsed_time)
 {
-
-
-
-	if (ball.get_position()[0] - center_position_[0]  > 50) {
+	if (ball.get_position()[0] - center_position_[0]  > 0) {
 		push_right(elapsed_time);
 	}
 
-	if (ball.get_position()[0] - center_position_[0]  < 50) {
+	if (ball.get_position()[0] - center_position_[0]  < 0) {
 		push_left(elapsed_time);
 	}
 }
+
 
 
 void Opponent::update(Uint32 elapsed_time)
 {
 	Leg::update(elapsed_time);
 }
+
+
 
 void Opponent::reset()
 {
