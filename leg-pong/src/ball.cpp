@@ -28,7 +28,7 @@ BallState Ball::collision_dectection(Opponent* opponent_leg, Player* player_leg)
 		if (collision_type !=COLLISION_NONE) {
 			handle_leg_collision(opponent_leg, collision_type);
 			opponent_refractory = k_refactory_frames;
-			return BALL_LEG_COLLISION;
+			return BALL_OPPONENT_COLLISION;
 		}
 	}
 	else {
@@ -40,7 +40,7 @@ BallState Ball::collision_dectection(Opponent* opponent_leg, Player* player_leg)
 		if (collision_type != COLLISION_NONE) {
 			handle_leg_collision(player_leg, collision_type);
 			player_refractory = k_refactory_frames;
-			return BALL_LEG_COLLISION;
+			return BALL_PLAYER_COLLISION;
 		}
 	}
 	else {
@@ -182,7 +182,13 @@ void Ball::collision_calculations(Leg* leg, CollisionType collision_type)
 	double a = 1 + phi;
 	double b = -2 * Vin*(phi);
 	double c = Vin*Vin*(phi - 1);
-	double Vout = quadratic_neg(a, b, c);
+	double Vout;//uninitialized to be an in-out parameter
+	bool is_real_solution=math::quadratic(a, b, c, true, Vout);
+	if (!is_real_solution) {
+		std::cerr << "Error, no real solution to ball quadratic" << std::endl;
+		std::cerr << "a, b, c: " << a << ", " << b << ", " << c << std::endl;
+		exit(EXIT_FAILURE);
+	}
 
 	double delta_v = Vout - Vin;
 
@@ -226,6 +232,65 @@ void Ball::reset()
 void Ball::start()
 {
 	velocity_ = { 0,400,0 };
+}
+
+bool Ball::predict_crossing_point(double Y, math::Point& point) const
+{
+	double Vx = velocity_[0];
+	double Vy = velocity_[1];
+
+	double X0 = center_position_[0];
+	double Y0 = center_position_[1];
+
+	double delta_y = Y - Y0;
+
+	if (Vy == 0)	//not viable
+		return false;
+
+	double delta_t = delta_y / Vy;
+
+	if (delta_t < 0)// not viable
+		return false;
+
+
+	X0 -= radius_; // bounce happens one radius off wall
+	
+	double X1 = X0 + Vx*delta_t;
+
+	double W = double(screen_width()) - radius_*2; //effect shifts effective wall position for reflection
+
+	int Z = int(X1) / int(W);
+
+	int even = Z % 2 == 0;
+
+	double X2;
+	if (X1 > 0) {//positive
+		if (even) {
+			X2=X1 - Z*W;
+		}
+		else {
+			X2 = (Z + 1)*W - X1;
+		}
+	}
+	else {//negative
+		if (even) {
+			X2 = Z*W - X1;
+		}
+		else {
+			X2 = X1 - (Z - 1)*W;
+		}
+	}
+
+
+	std::cerr << Z << "\n";
+
+	X2 += radius_; // undo bounce radius adjustment
+
+	point.x = X2;
+	point.y = Y;
+	point.t = delta_t;
+
+	return true;
 }
 
 

@@ -8,11 +8,13 @@
 
 namespace pong {
 
+class Game;
 class Graphics;
 class Input;
 
 class Sprite
 {
+	friend void test(Game* game);
 public:
 	Sprite();
 	Sprite(Graphics& graphics, const std::string& file_path, SDL_Rect source_rect, const Eigen::Vector3d &center_position, double angle_rad, double mass);

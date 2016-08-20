@@ -5,11 +5,40 @@
 #include <Eigen/dense>
 #include "globals.h"
 #include <cmath>
+#include <queue>
 
 namespace pong {
 
 class Input;
 class Graphics;
+
+
+
+enum LateralForce {
+	FORCE_NONE,
+	FORCE_RIGHT,
+	FORCE_LEFT
+};
+
+enum Torque {
+	TORQUE_NONE,
+	TORQUE_UP,
+	TORQUE_DOWN
+};
+
+
+
+struct Action
+{
+	LateralForce lateral_force;
+	Torque torque;
+	unsigned duration;
+};
+
+
+
+using Plan = std::queue<Action>;
+
 
 class Leg : public Sprite
 {
@@ -22,16 +51,17 @@ public:
 	virtual void update(Uint32 elapsed_time);
 
 protected:
-	void push_left(Uint32 elapsed_time);
-	void push_right(Uint32 elapsed_time);
-	void torque_up(Uint32 elapsed_time);
-	void torque_down(Uint32 elapsed_time);
-
 	double get_angular_acceleration() const;
 	double get_linear_acceleration() const;
 
+	//basically a command pattern
+	Plan action_plan_;
+
+	static constexpr unsigned k_screen_margin{ 100u };
+
 private:
-	
+	void execute_plan(Uint32 elapsed_time);
+	void execute_action(Action action);
 
 	Eigen::Vector3d get_normal() const;
 	double get_distance_to_leg_line(const Eigen::Vector3d& other_center) const;
@@ -43,9 +73,13 @@ private:
 
 	static constexpr double k_check_radius{ 90.0 };
 	static constexpr double k_distance_from_axis{ 17.0 };
-	static constexpr double k_linear_force{ 8000 };
-	static constexpr double K_torque{ 16 * M_PI };
-	
+	static constexpr double k_linear_force{ 8000.0 };
+	static constexpr double k_torque{ 16 * M_PI };
+
+	void push_left(Uint32 elapsed_time);
+	void push_right(Uint32 elapsed_time);
+	void torque_up(Uint32 elapsed_time);
+	void torque_down(Uint32 elapsed_time);
 };
 
 
@@ -61,10 +95,19 @@ public:
 	void update(Uint32 elapsed_time);
 	
 	void reset();
+
+	static constexpr double k_player_y{ static_cast<double>(screen_height() - k_screen_margin) };
+	static constexpr double k_player_Xo{ static_cast<double>(screen_width() / 2) };
 private:
 
 };
 
+
+
+enum Stance {
+	STANCE_RECOVER,
+	STANCE_ATTACK
+};
 
 
 class Opponent : public Leg
@@ -77,11 +120,16 @@ public:
 	
 	void update(Uint32 elapsed_time);
 	void reset();
-	void AI(const Ball& ball, Uint32 elapsed_time);
+	void plan(const Ball& ball, Stance stance);
+
+	static constexpr double k_opponent_y{ static_cast<double>(k_screen_margin) };
+	static constexpr double k_opponent_Xo{ static_cast<double>(screen_width() / 2) };
 
 private:
-	void angular_AI(const Ball& ball, Uint32 elapsed_time);
-	void lateral_AI(const Ball& ball, Uint32 elapsed_time);
+	//orients values along Xo to Xr and returns orientation value (-1 if values negated, 1 if unchanged)
+	double orient(double &Xo, double &Xr, double &Vo) const;
+	Plan attack_plan(const Ball& ball);
+	Plan recover_plan(const Ball& ball);
 };
 
 

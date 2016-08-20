@@ -1,4 +1,5 @@
 #include "game.h"
+#include "sprite.h"
 
 #include <SDL.h>
 #include <Eigen/dense>
@@ -95,15 +96,7 @@ unsigned Game::delay_timer()
 
 void Game::update(Uint32 elapsed_time)
 {
-
-	player_.process_input(input_, elapsed_time);
-	player_.update(elapsed_time);
-
-	opponent_.AI(ball_, elapsed_time);
-	opponent_.update(elapsed_time);
 	ball_.update(elapsed_time);
-
-
 
 	BallState ball_state=ball_.collision_dectection(&opponent_, &player_);
 
@@ -113,8 +106,13 @@ void Game::update(Uint32 elapsed_time)
 	case(BALL_WALL_COLLISION):
 		audio_.playSound(SOUND_BA);
 		break;
-	case(BALL_LEG_COLLISION): 
+	case(BALL_PLAYER_COLLISION): 
 		audio_.playSound(SOUND_SPIT);
+		opponent_.plan(ball_, STANCE_ATTACK);
+		break;
+	case(BALL_OPPONENT_COLLISION):
+		audio_.playSound(SOUND_SPIT);
+		opponent_.plan(ball_, STANCE_RECOVER);
 		break;
 	case(BALL_PLAYER_SCORE): 
 		score_++;
@@ -129,8 +127,30 @@ void Game::update(Uint32 elapsed_time)
 		audio_.playSound(SOUND_BA);
 		break;
 	}
+
+	player_.process_input(input_, elapsed_time);
+	player_.update(elapsed_time);
+
+	opponent_.update(elapsed_time);
 }
 
+
+
+void test(Game* game)
+{
+	Ball pseudo_ball(game->graphics_);
+	math::Point point;
+
+	if (game->ball_.predict_crossing_point(game->player_.k_player_y, point)) {
+		pseudo_ball.center_position_ = { point.x,point.y,0 };
+		pseudo_ball.draw(game->graphics_);
+	}
+
+	if (game->ball_.predict_crossing_point(game->opponent_.k_opponent_y, point)) {
+		pseudo_ball.center_position_ = { point.x,point.y,0 };
+		pseudo_ball.draw(game->graphics_);
+	}
+}
 
 
 void Game::draw()
@@ -139,6 +159,8 @@ void Game::draw()
 	opponent_.draw(graphics_);
 	ball_.draw(graphics_);
 
+	test(this);
+	
 	graphics_.flip();
 }
 

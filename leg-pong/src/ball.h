@@ -1,9 +1,9 @@
 #pragma once
 
 #include "sprite.h"
+#include "globals.h"
 
 namespace pong {
-
 
 
 class Graphics;
@@ -16,7 +16,8 @@ class Player;
 enum BallState {
 	BALL_NONE,
 	BALL_WALL_COLLISION,
-	BALL_LEG_COLLISION,
+	BALL_PLAYER_COLLISION,
+	BALL_OPPONENT_COLLISION,
 	BALL_PLAYER_SCORE,
 	BALL_OPPONENT_SCORE
 };
@@ -40,6 +41,10 @@ public:
 	void update(Uint32 elapsed_time);
 	void reset();
 	void start();
+
+	//Predict space time point (point) at which the ball crosses the line y=Y;
+	//Returns false if ball isn't headed in that direction, true if it is.
+	bool predict_crossing_point(double Y, math::Point& point) const;
 
 private:
 	double radius_ = 25.0;

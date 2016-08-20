@@ -19,6 +19,7 @@ Leg::Leg(Graphics& graphics, const Eigen::Vector3d& start_center_position, doubl
 
 void Leg::update(Uint32 elapsed_time)
 {
+	execute_plan(elapsed_time);
 	Sprite::update(elapsed_time);
 }
 
@@ -54,11 +55,67 @@ Eigen::Vector3d Leg::get_stub_position() const
 
 void Leg::push_left(Uint32 elapsed_time){ velocity_[0] -= (k_linear_force / mass_) * elapsed_time / 1000.0; }
 void Leg::push_right(Uint32 elapsed_time){ velocity_[0] += (k_linear_force / mass_) * elapsed_time / 1000.0; }
-void Leg::torque_up(Uint32 elapsed_time) { angular_velocity_rad_ += (K_torque / mass_) * elapsed_time / 1000.0; }
-void Leg::torque_down(Uint32 elapsed_time) { angular_velocity_rad_ -= (K_torque / mass_) * elapsed_time / 1000.0; }
+void Leg::torque_up(Uint32 elapsed_time) { angular_velocity_rad_ += (k_torque / mass_) * elapsed_time / 1000.0; }
+void Leg::torque_down(Uint32 elapsed_time) { angular_velocity_rad_ -= (k_torque / mass_) * elapsed_time / 1000.0; }
 
-double Leg::get_angular_acceleration() const { return K_torque / mass_;  }
+double Leg::get_angular_acceleration() const { return k_torque / mass_;  }
 double Leg::get_linear_acceleration() const { return k_linear_force / mass_; }
+
+
+
+void Leg::execute_plan(Uint32 elapsed_time)
+{
+	while (elapsed_time > 0) {
+
+		if (action_plan_.empty()) {//no queued actions
+			return;
+		}
+
+		Action action = action_plan_.front(); //action not a reference
+		auto executed_time{ action.duration };
+
+		if (elapsed_time < executed_time) {
+			executed_time = elapsed_time;
+			elapsed_time = 0;
+			action.duration = executed_time; //update current action
+			action_plan_.front().duration -= executed_time;	//update stored action
+		}
+		else {
+			action_plan_.pop();
+			elapsed_time -= executed_time;
+		}
+
+		execute_action(action);
+	}
+}
+
+
+void Leg::execute_action(Action action)
+{
+	switch (action.lateral_force) {
+	case(FORCE_LEFT):
+		push_left(action.duration);
+		break;
+	case(FORCE_RIGHT):
+		push_right(action.duration);
+		break;
+	case(FORCE_NONE):
+		break;
+	}
+
+	switch (action.torque) {
+	case(TORQUE_DOWN):
+		torque_down(action.duration);
+		break;
+	case(TORQUE_UP):
+		torque_up(action.duration);
+		break;
+	case(TORQUE_NONE):
+		break;
+	}
+
+}
+
 
 Player::Player(){}
 Player::~Player() {}
@@ -66,7 +123,7 @@ Player::~Player() {}
 
 
 Player::Player(Graphics& graphics) :
-	Leg(graphics, { 400.0,500.0, 0 }, 0)
+	Leg(graphics, { k_player_Xo, k_player_y, 0 }, 0)
 {
 }
 
@@ -74,14 +131,23 @@ Player::Player(Graphics& graphics) :
 
 void Player::process_input(const Input & input, Uint32 elapsed_time)
 {
+	Action action;
+	action.duration = elapsed_time;
+
 	if (input.is_key_held(SDL_SCANCODE_LEFT))
-		push_left(elapsed_time);
+		action.lateral_force = FORCE_LEFT;
 	if (input.is_key_held(SDL_SCANCODE_RIGHT))
-		push_right(elapsed_time);
+		action.lateral_force = FORCE_RIGHT;
+
 	if (input.is_key_held(SDL_SCANCODE_A))
-		torque_down(elapsed_time);
+		action.torque = TORQUE_DOWN;
 	if (input.is_key_held(SDL_SCANCODE_D))
-		torque_up(elapsed_time);
+		action.torque = TORQUE_UP;
+
+	Plan new_plan;
+	new_plan.emplace(action);
+
+	action_plan_.swap(new_plan);
 }
 
 
@@ -96,7 +162,7 @@ void Player::update(Uint32 elapsed_time)
 void Player::reset()
 {
 	velocity_ = { 0,0,0 };
-	center_position_ = { 400.0,500.0, 0 };
+	center_position_ = { k_player_Xo, k_player_y, 0 };
 	angle_rad_ = 0.0;
 	angular_velocity_rad_ = 0;
 
@@ -110,116 +176,57 @@ Opponent::~Opponent(){}
 
 
 Opponent::Opponent(Graphics& graphics) : 
-	Leg(graphics, { 350.0, 100.0, 0 }, M_PI )
+	Leg(graphics, { k_opponent_Xo, k_opponent_y, 0 }, M_PI )
 {
 }
 
 
 
-void Opponent::AI(const Ball& ball, Uint32 elapsed_time)
+void Opponent::plan(const Ball& ball, Stance stance)
 {
-	lateral_AI(ball, elapsed_time);
-	angular_AI(ball, elapsed_time);
-
-	/*if (angular_velocity_rad_ > 0) {
-		torque_down(elapsed_time);
-	}
-
-	if (angular_velocity_rad_ < 0) {
-		torque_up(elapsed_time);
-	}
-	*/
-	
-
-
-	/*if (both conditions met) :
-		do nothing.
-	else if (not going in correct direction) :
-			accelerate towards destination.
-	else (going in correct direction) :
-		determine where the stopping point would be in full negative acceleration.
-		if (stopping point is beyond destination) :
-			negative accelerate.
-		else :
-			accelerate toward destination*/
-
-	//double working_angle = abs(std::fmod(angle_deg_, M_PI));
-
-	
-
-}
-
-
-
-void Opponent::angular_AI(const Ball & ball, Uint32 elapsed_time)
-{
-	double sign_v = (angular_velocity_rad_ < 0) ? -1 : 1;
-
-	double angular_acceleration = get_angular_acceleration();
-
-	double kill_time = abs(angular_velocity_rad_ / angular_acceleration);
-	double kill_sweep = kill_time*angular_velocity_rad_ / 2;
-	double norm_finish = kill_time*angular_velocity_rad_ + angle_rad_;
-	double kill_finish = kill_sweep + angle_rad_;
-
-	double mod_angle = std::fmod(kill_finish, M_PI);
-	if (mod_angle < 0) mod_angle += M_PI;
-
-	double goal_angle = kill_finish;
-	if (mod_angle > M_PI / 2)
-		goal_angle += M_PI - mod_angle;
-	else
-		goal_angle -= mod_angle;
-
-	double sign_x = (angle_rad_ > goal_angle) ? -1 : 1;
-
-	enum Action {
-		ACTION_NONE,
-		ACTION_FORWARD,
-		ACTION_REVERSE
-	};
-
-	Action action = ACTION_NONE;
-	if (sign_v != sign_x) {//going wrong direction
-		action = ACTION_REVERSE;
-	}
-	else {//going in right direction
-		if (abs(angle_rad_ - kill_finish) < abs(angle_rad_ - goal_angle))//stopping early
-			action = ACTION_NONE;
-		else if (abs(angle_rad_ - norm_finish) > abs(angle_rad_ - goal_angle))
-			action = ACTION_REVERSE;
-	}
-
-
-	if (action == ACTION_REVERSE) {
-		if (sign_v == 1) {//going positive
-			torque_down(elapsed_time);
-		}
-		else {//going negative
-			torque_up(elapsed_time);
-		}
-	}
-	else if (action == ACTION_FORWARD) {
-		if (sign_v == 1) {//going positive
-			torque_up(elapsed_time);
-		}
-		else {//going negative
-			torque_down(elapsed_time);
-		}
+	switch (stance) {
+	case(STANCE_ATTACK):
+		action_plan_.swap(attack_plan(ball));
+	case(STANCE_RECOVER):
+		action_plan_.swap(recover_plan(ball));
 	}
 }
 
 
 
-void Opponent::lateral_AI(const Ball & ball, Uint32 elapsed_time)
+double Opponent::orient(double & Xo, double & Xr, double & Vo) const
 {
-	if (ball.get_position()[0] - center_position_[0]  > 0) {
-		push_right(elapsed_time);
-	}
+	return 0.0;
+}
 
-	if (ball.get_position()[0] - center_position_[0]  < 0) {
-		push_left(elapsed_time);
-	}
+Plan Opponent::attack_plan(const Ball & ball)
+{
+	Plan plan;
+
+	math::Point point;
+	bool incoming=ball.predict_crossing_point(k_opponent_y, point);
+	if (!incoming)
+		return plan;
+
+
+
+	return plan;
+}
+
+
+
+Plan Opponent::recover_plan(const Ball & ball)
+{
+	Plan plan;
+
+	math::Point point;
+	bool outgoing = ball.predict_crossing_point(Player::k_player_y,point);
+	if(!outgoing)
+		return plan;
+
+
+
+	return plan;
 }
 
 
@@ -234,7 +241,7 @@ void Opponent::update(Uint32 elapsed_time)
 void Opponent::reset()
 {
 	velocity_ = { 0,0,0 };
-	center_position_ = { 400.0,100.0,0 };
+	center_position_ = { k_opponent_Xo, k_opponent_y,0 };
 	angle_rad_ = M_PI;
 	angular_velocity_rad_ = 0;
 }

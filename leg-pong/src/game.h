@@ -21,6 +21,7 @@ enum GameState {
 
 class Game
 {
+	friend void test(Game* game);
 public:
 	Game();
 	~Game();
@@ -50,6 +51,7 @@ private:
 
 	void reset();
 
+	
 };
 
 } // namespace pong
