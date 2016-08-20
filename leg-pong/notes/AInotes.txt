@@ -1,0 +1,139 @@
+
+
+At position, velocity, time (x0, v0, t0)
+
+Want to be at (x1, v1, t1)
+
+can accelerate (a), (0) or (-a)
+
+
+simplifiying to the desired state of (x1, 0, t_min) is easier.
+
+What often actually want though is to be at position x1 at time t1.
+
+
+2 different problems,
+
+1: get to (x1, 0, t_min) as quickly as possible, always solveable.
+2: get to (x1, ?, t1). May or may not be possible
+	Ideally want (x1, v_min, t1);
+
+
+
+problem 1.
+
+input: (state:(x0, v0, 0)), accleleration
+output: (function of chosen accelerations vs time), (amount of time needed)
+
+
+By just accelerating in the direction of the desired location we can get there quickest
+By just accelerating in the against current velocity we can kill it quickest.
+
+if (both conditions met):
+	do nothing.
+else if (not going in correct direction):
+	accelerate towards destination.
+else (going in correct direction):
+	determine where the stopping point would be in full negative acceleration.
+	if (stopping point is beyond destination):
+		negative accelerate.
+	else:
+		accelerate toward destination
+
+
+
+problem 2.
+
+if (not going in correct direction):
+	accelerate towards destination.
+if (going in correct direction):
+	calculate arrival time
+	if (ahead of time):
+		slow down.
+	if (behind):
+		accelerate.
+
+
+
+
+After ruminating.
+
+Two step process.
+
+1) Plan()
+2) Execute()
+
+:::::::::::::1::::::::::::
+ActionPlan plan(ball, stance) 
+	
+	gets called when 
+			a) AI hits ball.
+				-passed stance "RECOVER" parameter
+				-plans move to neutral location with low final velocity
+			b) Player hits ball.
+				-passed stance "ATTACK" parameter
+				-plans getting to ball and kicking ball
+	can make that happen using the ballstate check, however this is inherantly a callback.
+
+
+
+ActionPlan plan(ball, stance) returns an action_plan which specifies torque and lateral force for each microsecond of the plan.
+	action_plan is a stack of <action, duration> pairs.
+	action has a specification of all forces.
+
+
+
+:::::::::::::2::::::::::::
+void execute_plan(ActionPlan &action_plan, uInt elapsed_time)
+	called during update.
+
+void execute_plan(ActionPlan &action_plan, uInt elapsed_time)
+{
+	while(elapsed_time > 0)	{
+		auto &action = action_plan.peek(); //REFERENCE
+		auto executed_time {action.duration};
+		
+		if(elapsed_time < executed_time){
+			executed_time=elapsed_time;
+			action.duration -= executed_time;
+		}
+		else{
+			action_plan.pop();
+			elapsed_time-=executed_time;
+		}
+
+		execute_action(action, executed_time)
+	}
+}
+
+
+void execute_action(Action action, uInt executed_time)
+{
+	//stuff
+}
+
+
+enum LateralForce{
+	FORCE_NONE,
+	FORCE_RIGHT,
+	FORCE_LEFT
+}
+
+enum Torque{
+	TORQUE_NONE,
+	TORQUE_UP,
+	TORQUE_DOWN
+}
+
+struct Action
+{
+	LateralForce lateral_force;
+	Torque torque;
+	Uint duration;
+}
+
+(replaced with directly giving leg the queue)
+struct ActionPlan
+{
+	std::queue<Action> action_plan;
+}
